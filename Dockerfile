@@ -43,24 +43,20 @@ WORKDIR /home/fedora
 RUN sed -i "s|ZSH_THEME=\"robbyrussell\"|ZSH_THEME=\"powerlevel9k/powerlevel9k\"|g" .zshrc
 COPY config/omz/*.zsh /home/fedora/.oh-my-zsh/custom/
 
-RUN GOPATH=/home/fedora/go && \ 
-    PATH=$PATH:$GOPATH/bin && \ 
-    curl https://glide.sh/get | sh && \ 
+ENV GOPATH /home/fedora/go
+ENV PATH $PATH:/home/fedora/go/bin
+
+RUN curl https://glide.sh/get | sh && \ 
     mkdir -p $GOPATH/src/github.com/mh-cbon/go-bin-rpm && \ 
     mkdir -p $GOPATH/src/github.com/KebinuChiousu/docker-volume-local-persist
-WORKDIR /home/fedora/go/src/github.com/mh-cbon/go-bin-rpm
-RUN GOPATH=/home/fedora/go && \ 
-    PATH=$PATH:$GOPATH/bin && \ 
-    git clone https://github.com/mh-cbon/go-bin-rpm.git . && \ 
+WORKDIR $GOPATH/src/github.com/mh-cbon/go-bin-rpm
+RUN git clone https://github.com/mh-cbon/go-bin-rpm.git . && \ 
     glide install && \ 
     go install
-WORKDIR /home/fedora/go/src/github.com/KebinuChiousu/docker-volume-local-persist
-RUN GOPATH=/home/fedora/go && \ 
-    PATH=$PATH:$GOPATH/bin && \ 
-    git clone https://github.com/KebinuChiousu/docker-volume-local-persist . && \ 
+WORKDIR $GOPATH/src/github.com/KebinuChiousu/docker-volume-local-persist
+RUN git clone https://github.com/KebinuChiousu/docker-volume-local-persist . && \ 
     glide install && \ 
     go install
-
 
 USER root
 
