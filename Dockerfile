@@ -46,13 +46,22 @@ COPY config/omz/*.zsh /home/fedora/.oh-my-zsh/custom/
 ENV GOPATH /home/fedora/go
 ENV PATH $PATH:/home/fedora/go/bin
 
+# Install Glide (Go package manager)
 RUN curl https://glide.sh/get | sh && \ 
     mkdir -p $GOPATH/src/github.com/mh-cbon/go-bin-rpm && \ 
+    mkdir -p $GOPATH/src/github.com/mh-cbon/changelog && \ 
     mkdir -p $GOPATH/src/github.com/KebinuChiousu/docker-volume-local-persist
+# Install rpm package builder
 WORKDIR $GOPATH/src/github.com/mh-cbon/go-bin-rpm
 RUN git clone https://github.com/mh-cbon/go-bin-rpm.git . && \ 
     glide install && \ 
     go install
+# Install changelog maintainer
+WORKDIR $GOPATH/src/github.com/mh-cbon/changelog
+RUN git clone https://github.com/mh-cbon/changelog.git . && \ 
+    glide install && \ 
+    go install
+# Install docker volume plugin: local-persist
 WORKDIR $GOPATH/src/github.com/KebinuChiousu/docker-volume-local-persist
 RUN git clone https://github.com/KebinuChiousu/docker-volume-local-persist . && \ 
     glide install && \ 
