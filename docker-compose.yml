@@ -1,0 +1,34 @@
+version: '2'
+services:
+  build-atomic:
+    hostname: atomic
+    image: meredithkm/atomic
+    container_name: build-atomic
+    restart: unless-stopped
+    ports:
+     - "2222:22/tcp"
+    volumes:
+     - atomic:/srv/rpm-ostree/centos-atomic-host/7/
+     - ssh_config:/etc/ssh/
+     - fedora:/home/fedora/
+    networks:
+     - portainer_default
+
+volumes:
+  atomic:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /opt/docker-data/atomic/rpm-ostree/centos-atomic-host/7/
+  ssh_config:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /opt/docker-data/atomic/ssh_config
+  fedora:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /opt/docker-data/atomic/fedora
+
+networks:
+  portainer_default:
+    external:
+      name: portainer_default

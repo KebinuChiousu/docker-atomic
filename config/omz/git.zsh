@@ -1,0 +1,6 @@
+alias gcm='git checkout master'
+alias gcw='git checkout working'
+alias gmm='git merge master'
+alias gmw='git merge working'
+alias gca='git commit -C HEAD --amend'
+alias grh='git reset --hard HEAD'
