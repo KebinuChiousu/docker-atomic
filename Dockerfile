@@ -6,17 +6,21 @@ RUN yum -y install openssh-clients openssh-server && \
     yum -y install rpm-build rpmdevtools && \
     yum -y clean all && \
     touch /run/utmp && \
-    chmod u+x usr/bin/ping && \
-    mkdir -p /srv/rpm-ostree/centos-atomic-host/7
+    chmod u+x usr/bin/ping
 
 RUN dnf -y install golang
 
 COPY entrypoint.sh /
+
 RUN usermod -p "!" root
 COPY config/authorized_keys /root/.ssh/authorized_keys
 COPY config/sudoers /etc/sudoers
 RUN chmod 440 /etc/sudoers
 RUN chown root:root /etc/sudoers
+
+WORKDIR /root
+RUN git clone https://github.com/baude/sig-atomic-buildscripts
+
 RUN useradd -g wheel -s /bin/zsh fedora
 COPY config/authorized_keys /home/fedora/.ssh/authorized_keys
 RUN mkdir /home/fedora/git
@@ -25,8 +29,8 @@ RUN chown -R fedora:wheel /home/fedora
 RUN chmod -R 755 /home/fedora
 RUN chmod 640 /home/fedora/.ssh/authorized_keys
 
-WORKDIR /root
-RUN git clone https://github.com/baude/sig-atomic-buildscripts
+RUN mkdir -p /srv/rpm-ostree/centos-atomic-host/7 && \
+    mkdir -p /srv/repo/rpm
 
 USER fedora
 WORKDIR /home/fedora
@@ -47,26 +51,26 @@ ENV GOPATH /home/fedora/go
 ENV PATH $PATH:/home/fedora/go/bin
 
 # Install Glide (Go package manager)
-RUN curl https://glide.sh/get | sh && \ 
-    mkdir -p $GOPATH/src/github.com/mh-cbon/go-bin-rpm && \ 
-    mkdir -p $GOPATH/src/github.com/mh-cbon/changelog && \ 
+RUN curl https://glide.sh/get | sh && \
+    mkdir -p $GOPATH/src/github.com/mh-cbon/go-bin-rpm && \
+    mkdir -p $GOPATH/src/github.com/mh-cbon/changelog && \
     mkdir -p $GOPATH/src/local-persist
 # Install rpm package builder
 WORKDIR $GOPATH/src/github.com/mh-cbon/go-bin-rpm
-RUN git clone https://github.com/mh-cbon/go-bin-rpm.git . && \ 
+RUN git clone https://github.com/mh-cbon/go-bin-rpm.git . && \
     glide install && \ 
     go install
 # Install changelog maintainer
 WORKDIR $GOPATH/src/github.com/mh-cbon/changelog
-RUN git clone https://github.com/mh-cbon/changelog.git . && \ 
+RUN git clone https://github.com/mh-cbon/changelog.git . && \
     glide install && \ 
     go install
 # Install docker volume plugin: local-persist
 WORKDIR $GOPATH/src/local-persist
-RUN git clone https://github.com/KebinuChiousu/local-persist . && \ 
-    glide install && \ 
-    go install && \ 
-    mkdir -p build/amd64 && \ 
+RUN git clone https://github.com/KebinuChiousu/local-persist . && \
+    glide install && \
+    go install && \
+    mkdir -p build/amd64 && \
     mkdir -p pkg-build && \
     cp $GOPATH/bin/local-persist ./build/amd64/
 
@@ -74,6 +78,7 @@ USER root
 
 VOLUME /etc/ssh
 VOLUME /home/fedora
+VOLUME /srv/repo
 VOLUME /srv/rpm-ostree/centos-atomic-host/7
 EXPOSE 22
 ENTRYPOINT ["/entrypoint.sh"]

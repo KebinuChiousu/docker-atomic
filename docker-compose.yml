@@ -9,6 +9,7 @@ services:
      - "2222:22/tcp"
     volumes:
      - atomic:/srv/rpm-ostree/centos-atomic-host/7/
+     - repo:/srv/repo/
      - ssh_config:/etc/ssh/
      - fedora:/home/fedora/
     networks:
@@ -19,6 +20,10 @@ volumes:
     driver: local-persist
     driver_opts:
       mountpoint: /opt/docker-data/atomic/rpm-ostree/centos-atomic-host/7/
+  repo:
+    driver: local-persist
+    driver_opts:
+      mountpoint: /opt/docker-data/atomic/repo/
   ssh_config:
     driver: local-persist
     driver_opts:
