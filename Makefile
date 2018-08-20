@@ -8,6 +8,8 @@ stop:
 	docker-compose down
 destroy:
 	sudo rm -rf $(shell docker inspect docker-atomic_fedora | jq '.[].Mountpoint' -r)
+	sudo rm -rf $(shell docker inspect docker-atomic_repo | jq '.[].Mountpoint' -r)
+	sudo rm -rf $(shell docker inspect docker-atomic_atomic | jq '.[].Mountpoint' -r)
 	docker-compose down -v
 check:
 	docker-compose ps

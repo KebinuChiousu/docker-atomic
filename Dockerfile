@@ -26,7 +26,8 @@ RUN chmod -R 755 /home/fedora
 RUN chmod 640 /home/fedora/.ssh/authorized_keys
 
 RUN mkdir -p /srv/rpm-ostree/centos-atomic-host/7 && \
-    mkdir -p /srv/repo/rpm
+    mkdir -p /srv/repo/rpm && \
+    chown -R fedora:wheel /srv/repo
 
 USER fedora
 
@@ -109,9 +110,11 @@ COPY config/rpm/docker-volume-local-persist/* $GOPATH/src/local-persist/rpm/
 COPY config/rpm/docker-volume-local-persist/rpm.json $GOPATH/src/local-persist/
 COPY config/rpm/docker-volume-local-persist/change.log $GOPATH/src/local-persist/
 
-RUN go-bin-rpm test
-RUN go-bin-rpm generate-spec -a amd64 --version 1.3.0
-RUN go-bin-rpm generate -a amd64 --version 1.3.0 -b pkg-build/amd64 -o docker-volume-local-persist.rpm
+RUN go-bin-rpm test && \
+    go-bin-rpm generate-spec -a amd64 --version 1.3.0 && \
+    go-bin-rpm generate -a amd64 --version 1.3.0 -b pkg-build/amd64 -o docker-volume-local-persist.rpm && \
+    cp $GOPATH/src/local-persist/pkg-build/amd64/RPMS/x86_64/*.rpm /srv/repo/rpm/ && \
+    rm -rf pkg-build/amd64/*
 
 USER root
 
