@@ -110,8 +110,8 @@ COPY config/rpm/docker-volume-local-persist/rpm.json $GOPATH/src/local-persist/
 COPY config/rpm/docker-volume-local-persist/change.log $GOPATH/src/local-persist/
 
 RUN go-bin-rpm test
-RUN go-bin-rpm generate-spec -a amd64 --version git-b28592c
-RUN go-bin-rpm generate -a amd64 --version git-b28592c
+RUN go-bin-rpm generate-spec -a amd64 --version 1.3.0
+RUN go-bin-rpm generate -a amd64 --version 1.3.0
 
 USER root
 
