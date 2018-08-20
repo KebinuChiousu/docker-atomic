@@ -100,9 +100,15 @@ WORKDIR $GOPATH/src/local-persist
 RUN git clone https://github.com/KebinuChiousu/local-persist . && \
     glide install && \
     go install && \
+    mkdir -p rpm && \
     mkdir -p build/amd64 && \
     mkdir -p pkg-build && \
-    cp $GOPATH/bin/local-persist ./build/amd64/
+    cp $GOPATH/bin/local-persist ./build/amd64/docker-volume-local-persist
+
+COPY config/rpm/docker-volume-local-persist/* $GOPATH/src/local-persist/rpm/
+COPY config/rpm/docker-volume-local-persist/rpm.json $GOPATH/src/local-persist/
+RUN changelog init --author Cameron Spear --email cam@cameronspear.com
+RUN go-bin-rpm generate-spec -a amd64 --version 1.6.0
 
 USER root
 

@@ -1,0 +1,33 @@
+{
+    "name": "docker-volume-local-persist",
+    "version": "!version!",
+    "arch": "!arch!",
+    "release": "1",
+    "summary": "persistent local volumes for docker",
+    "group": "Applications/Internet",
+    "license": "LICENSE",
+    "url": "https://github.com/CWSpear/local-persist",
+    "description": "local-persist volume driver for docker.",
+    "changelog-cmd": "changelog rpm",
+    "files": [
+      {
+        "from": "build/!arch!/docker-volume-local-persist",
+        "to": "%{_bindir}/",
+        "base": "build/!arch!/",
+        "type": ""
+      },
+      {
+        "from": "rpm/docker-volume-local-persist.service",
+        "to": "%{_unitdir}/",
+        "base": "rpm"
+      }
+    ],
+    "preinst": "rpm/preinst.sh",
+    "postinst": "rpm/postinst.sh",
+    "prerm": "rpm/prerm.sh",
+    "postrm": "rpm/postrm.sh",
+    "verify": "rpm/verify.sh",
+    "envs": {
+      "some": "value"
+    }    
+}
