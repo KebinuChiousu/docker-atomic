@@ -1,14 +1,10 @@
-FROM fedora:28
+FROM fedora:27
 
-RUN yum -y install openssh-clients openssh-server && \
-    yum -y install pykickstart rpm-ostree-toolbox && \
-    yum -y install git which sudo zsh && \
-    yum -y install rpm-build rpmdevtools && \
-    yum -y clean all && \
-    touch /run/utmp && \
-    chmod u+x usr/bin/ping
-
-RUN dnf -y install golang
+RUN dnf -y install openssh-clients openssh-server && \
+    dnf -y install iputils bind-utils nc wget && \
+    dnf -y install pykickstart rpm-ostree-toolbox && \
+    dnf -y install rpm-build rpmdevtools && \
+    dnf -y install git which sudo zsh python3 golang
 
 COPY entrypoint.sh /
 
@@ -33,8 +29,8 @@ RUN mkdir -p /srv/rpm-ostree/centos-atomic-host/7 && \
     mkdir -p /srv/repo/rpm
 
 USER fedora
-WORKDIR /home/fedora
-RUN rpmdev-setuptree
+
+# Configure ZSH shell
 WORKDIR /home/fedora/git
 RUN git clone https://github.com/robbyrussell/oh-my-zsh.git oh-my-zsh
 RUN git clone https://github.com/powerline/fonts.git powerline-fonts
@@ -47,24 +43,58 @@ WORKDIR /home/fedora
 RUN sed -i "s|ZSH_THEME=\"robbyrussell\"|ZSH_THEME=\"powerlevel9k/powerlevel9k\"|g" .zshrc
 COPY config/omz/*.zsh /home/fedora/.oh-my-zsh/custom/
 
+# Configure go environment.
 ENV GOPATH /home/fedora/go
 ENV PATH $PATH:/home/fedora/go/bin
 
 # Install Glide (Go package manager)
 RUN curl https://glide.sh/get | sh && \
     mkdir -p $GOPATH/src/github.com/mh-cbon/go-bin-rpm && \
+    mkdir -p $GOPATH/src/github.com/mh-cbon/go-bin-deb && \
     mkdir -p $GOPATH/src/github.com/mh-cbon/changelog && \
-    mkdir -p $GOPATH/src/local-persist
+    mkdir -p $GOPATH/src/github.com/mh-cbon/emd && \
+    mkdir -p $GOPATH/src/github.com/mh-cbon/gump && \
+    mkdir -p $GOPATH/src/github.com/mh-cbon/gh-api-cli && \
+    mkdir -p $GOPATH/src/local-persist 
+
+# Install below packages as suggested in: https://github.com/mh-cbon/go-github-release
+
 # Install rpm package builder
 WORKDIR $GOPATH/src/github.com/mh-cbon/go-bin-rpm
 RUN git clone https://github.com/mh-cbon/go-bin-rpm.git . && \
     glide install && \ 
     go install
+
+# Install deb package builder
+WORKDIR $GOPATH/src/github.com/mh-cbon/go-bin-deb
+RUN git clone https://github.com/mh-cbon/go-bin-deb.git . && \
+    glide install && \ 
+    go install
+
 # Install changelog maintainer
 WORKDIR $GOPATH/src/github.com/mh-cbon/changelog
 RUN git clone https://github.com/mh-cbon/changelog.git . && \
     glide install && \ 
     go install
+
+# Install Enhanced Markdown template processor
+WORKDIR $GOPATH/src/github.com/mh-cbon/emd
+RUN git clone https://github.com/mh-cbon/emd.git . && \
+    glide install && \
+    go install
+
+# Gump is an utility to bump your package using semver.
+WORKDIR $GOPATH/src/github.com/mh-cbon/gump
+RUN git clone https://github.com/mh-cbon/gump.git . && \
+    glide install && \
+    go install
+
+# Package gh-api-cli is a command line utility to work with github api.
+WORKDIR $GOPATH/src/github.com/mh-cbon/gh-api-cli
+RUN git clone https://github.com/mh-cbon/gh-api-cli.git . && \
+    glide install && \
+    go install
+
 # Install docker volume plugin: local-persist
 WORKDIR $GOPATH/src/local-persist
 RUN git clone https://github.com/KebinuChiousu/local-persist . && \
