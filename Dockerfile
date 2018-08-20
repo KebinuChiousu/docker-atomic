@@ -102,7 +102,7 @@ RUN git clone https://github.com/KebinuChiousu/local-persist . && \
     go install && \
     mkdir -p rpm && \
     mkdir -p build/amd64 && \
-    mkdir -p pkg-build && \
+    mkdir -p pkg-build/amd64 && \
     cp $GOPATH/bin/local-persist ./build/amd64/docker-volume-local-persist
 
 COPY config/rpm/docker-volume-local-persist/* $GOPATH/src/local-persist/rpm/
