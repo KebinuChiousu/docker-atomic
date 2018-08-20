@@ -111,7 +111,7 @@ COPY config/rpm/docker-volume-local-persist/change.log $GOPATH/src/local-persist
 
 RUN go-bin-rpm test
 RUN go-bin-rpm generate-spec -a amd64 --version 1.3.0
-RUN go-bin-rpm generate -a amd64 --version 1.3.0
+RUN go-bin-rpm generate -a amd64 --version 1.3.0 -b pkg-build/amd64 -o docker-volume-local-persist.rpm
 
 USER root
 
