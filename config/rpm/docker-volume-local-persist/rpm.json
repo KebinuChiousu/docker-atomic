@@ -25,9 +25,5 @@
     "preinst": "rpm/preinst.sh",
     "postinst": "rpm/postinst.sh",
     "prerm": "rpm/prerm.sh",
-    "postrm": "rpm/postrm.sh",
-    "verify": "rpm/verify.sh",
-    "envs": {
-      "some": "value"
-    }    
+    "postrm": "rpm/postrm.sh"
 }
